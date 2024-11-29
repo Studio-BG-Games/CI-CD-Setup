@@ -33,7 +33,7 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: './credentials.json'
         run: |
           try {
-            firebase appdistribution:distribute ./artifacts/Build.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "bgtesters"
+            firebase appdistribution:distribute ./Build/artifacts/Build.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "bg-testers"
           } finally {
             if (Test-Path "./credentials.json") {
               Remove-Item "./credentials.json" -Force
