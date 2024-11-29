@@ -1,0 +1,41 @@
+name: Build project
+run-name: ${{ github.actor }} has triggered Build for the project 🚀
+on: [push]
+
+jobs:
+  buildForAllSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: self-hosted
+    if: contains(github.event.head_commit.message, 'build')
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - Android
+    steps:
+      - name: Start system 
+        run:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: cake-build/cake-action@v2
+        with:
+          script-path: ./build.cake
+      - name: Write Google Application Credentials to a file
+        run: |
+          $credentials = @"
+          ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          "@
+          Set-Content -Path "./credentials.json" -Value $credentials
+      - name: Upload APK to Firebase App Distribution
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: './credentials.json'
+        run: |
+          try {
+            firebase appdistribution:distribute ./artifacts/Build.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "bgtesters"
+          } finally {
+            if (Test-Path "./credentials.json") {
+              Remove-Item "./credentials.json" -Force
+            }
+          }
