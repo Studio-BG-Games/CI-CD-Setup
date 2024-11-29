@@ -14,7 +14,7 @@ Task("Build-Android")
     .Does(() =>
 {
     UnityEditor(
-        2022, 3,
+        2022, 3, 50, 'f', 1,
         new UnityEditorArguments
         {
             ExecuteMethod="Editor.Builder.BuildAndroid",
