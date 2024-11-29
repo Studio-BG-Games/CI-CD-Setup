@@ -6,7 +6,7 @@ Task("Clean-Artifacts")
     .WithCriteria(c => HasArgument("rebuild"))
     .Does(() =>
 {
-    CleanDirectory($"./artifacts");
+    CleanDirectory($"./Build/artifacts");
 });
 
 Task("Build-Android")
@@ -19,7 +19,7 @@ Task("Build-Android")
         {
             ExecuteMethod="Editor.Builder.BuildAndroid",
             BuildTarget=BuildTarget.Android,
-            LogFile = "./artifacts/unity.log",
+            LogFile = "./Build/artifacts/unity.log",
             ProjectPath = "./",
         },
         new UnityEditorSettings
