@@ -1,24 +1,29 @@
 name: Build project
 run-name: ${{ github.actor }} has triggered Build for the project 🚀
-on: [push]
+
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   buildForAllSupportedPlatforms:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: self-hosted
-    if: contains(github.event.head_commit.message, 'build')
+    if: contains(github.event.head_commit.message, 'build') || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
         targetPlatform:
           - Android
     steps:
-      - name: Start system 
-        run:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: 'true'
           fetch-depth: 0
-          lfs: true
+      - name: Checkout lfs
+        run: |
+          git lfs install --local
+          git lfs pull
       - uses: cake-build/cake-action@v2
         with:
           script-path: ./build.cake
@@ -33,7 +38,7 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: './credentials.json'
         run: |
           try {
-            firebase appdistribution:distribute ./Build/artifacts/Build.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "bg-testers"
+            firebase appdistribution:distribute ./Build/artifacts/Build.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "bgtesters"
           } finally {
             if (Test-Path "./credentials.json") {
               Remove-Item "./credentials.json" -Force
